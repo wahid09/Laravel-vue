@@ -6,6 +6,25 @@
                 <div class="card-header">Customers Dashboard</div>
 
                 <div class="card-body">
+                  <div class="mb-3">
+                    <div class="row">
+                      <div class="col-md-2 mr-0">
+                        <strong>Search By :</strong>
+                      </div>
+                      <div class="col-md-3 ml-0">
+                        <select class="form-control" id="fields" v-model="queryField">
+                          <option value="name">Name</option>
+                          <option value="email">Email</option>
+                          <option value="phone">Phone</option>
+                          <option value="address">Address</option>
+                          <option value="total">Total</option>
+                        </select>
+                      </div>
+                      <div class="col-md-7">
+                        <input type="text" v-model="query" class="form-control" placeholder="Search">
+                      </div>
+                    </div>
+                  </div>
                     <div class="table-responsive table-bordered">
                       <table class="table">
                         <thead>
@@ -30,27 +49,36 @@
                             <td>{{ customer.total }}</td>
                             <td class="text-center">
                               <button type="button" @click="show(customer)" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i>
+                                <i class="fa fa-eye"></i>
                               </button>
                               <button type="button" @click="edit(customer)" class="btn btn-primary btn-sm">
-                                <i class="fas fa-edit"></i>
+                                <i class="fa fa-edit"></i>
                               </button>
                               <button
                                 type="button"
                                 @click="destroy(customer)"
                                 class="btn btn-danger btn-sm"
                               >
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="fa fa-trash"></i>
                               </button>
                             </td>
                           </tr>
                         </tbody>
                       </table>
+                      <pagination
+                        v-if="pagination.last_page > 1"
+                        :pagination="pagination"
+                        :offset="5"
+                        @paginate="getData()"
+                        >
+                
+                     </pagination>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <vue-progress-bar></vue-progress-bar>
   </div>
 </template>
 
@@ -58,7 +86,21 @@
     export default {
       data(){
         return {
+          query: '',
+          queryField: 'name',
           customers: [],
+          pagination: {
+            current_page: 1,
+          }
+        }
+      },
+      watch: {
+        query: function(newQ, old) {
+          if (newQ === "") {
+            this.getData();
+          } else {
+            this.searchData();
+          }
         }
       },
         mounted() {
@@ -68,10 +110,38 @@
         },
         methods: {
           getData(){
-            axios.get(`api/customers`)
+            this.$Progress.start()
+            axios.get(`api/customers?page=`+this.pagination.current_page)
                  .then(response =>{
                   this.customers = response.data.data
+                  this.pagination = response.data.meta
+                  this.$Progress.finish()
                  })
+                 .catch(e =>{
+                  console.log(e)
+                  this.$Progress.fail()
+                 })
+          },
+          searchData(){
+            //this.$Progress.start();
+              axios
+                .get(
+                  "/api/search/customers/" +
+                    this.queryField +
+                    "/" +
+                    this.query +
+                    "?page=" +
+                    this.pagination.current_page
+                )
+                .then(response => {
+                  this.customers = response.data.data;
+                  this.pagination = response.data.meta;
+                  //this.$Progress.finish();
+                })
+                .catch(e => {
+                  console.log(e);
+                  //this.$Progress.fail();
+                });
           }
         }
     }
