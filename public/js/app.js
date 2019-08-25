@@ -1982,8 +1982,7 @@ __webpack_require__.r(__webpack_exports__);
     show: function show(customer) {
       this.form.reset();
       this.form.fill(customer);
-      $("#showModal").modal("show");
-      console.log(customer);
+      $("#showModal").modal("show"); //console.log(customer);
     },
     edit: function edit(customer) {
       console.log(customer);

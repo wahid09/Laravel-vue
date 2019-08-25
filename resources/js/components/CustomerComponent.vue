@@ -286,7 +286,7 @@
               this.form.reset();
               this.form.fill(customer);
               $("#showModal").modal("show");
-              console.log(customer);
+              //console.log(customer);
             },
           edit(customer){
             console.log(customer)
