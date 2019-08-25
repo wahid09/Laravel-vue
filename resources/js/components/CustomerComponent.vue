@@ -3,7 +3,12 @@
         <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Customers Dashboard</div>
+                <div class="card-header">
+                  <h3 class="card-title">Customers Dashboard</h3>
+                  <div class="card-tools"  style="position:absulate; right:1rem; top: .5rem">
+                    <button type="button" class="btn btn-primary pull-right"><i class="fa fa-plus"></i></button>
+                  </div>
+                </div>
 
                 <div class="card-body">
                   <div class="mb-3">
@@ -39,7 +44,7 @@
                       </thead>
                         <tbody>
                           <tr
-                            v-for="(customer, index) in customers"
+                            v-show = "customers.length" v-for="(customer, index) in customers"
                             :key="customer.id"
                           >
                             <th scope="row">{{ index + 1 }}</th>
@@ -63,13 +68,18 @@
                               </button>
                             </td>
                           </tr>
+                          <tr v-show="!customers.length">
+                            <td colspan="6">
+                              <div class="alert alert-danger" role="alert">Sorry :( No data found.</div>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                       <pagination
                         v-if="pagination.last_page > 1"
                         :pagination="pagination"
                         :offset="5"
-                        @paginate="getData()"
+                        @paginate="query === '' ? getData() : searchData()"
                         >
                 
                      </pagination>
@@ -123,7 +133,7 @@
                  })
           },
           searchData(){
-            //this.$Progress.start();
+            this.$Progress.start();
               axios
                 .get(
                   "/api/search/customers/" +
@@ -136,13 +146,20 @@
                 .then(response => {
                   this.customers = response.data.data;
                   this.pagination = response.data.meta;
-                  //this.$Progress.finish();
+                  this.$Progress.finish();
                 })
                 .catch(e => {
                   console.log(e);
-                  //this.$Progress.fail();
+                  this.$Progress.fail();
                 });
           }
         }
     }
 </script>
+<style>
+  #addbut{
+    position: absulate;
+    right:1rem;
+    top:.5rem
+  }
+</style>
