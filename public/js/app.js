@@ -1850,12 +1850,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      editMode: false,
       query: '',
       queryField: 'name',
       customers: [],
       form: new Form({
         id: '',
-        namee: '',
+        name: '',
         email: '',
         phone: '',
         address: '',
@@ -1911,6 +1912,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     create: function create() {
+      this.editMode = false;
       this.form.reset();
       this.form.clear();
       $('#customerModalLong').modal('show'); //console.log(create)
@@ -1937,6 +1939,39 @@ __webpack_require__.r(__webpack_exports__);
         }
       })["catch"](function (e) {
         _this3.$Progress.fail();
+
+        console.log(e);
+      });
+    },
+    edit: function edit(customer) {
+      console.log(customer);
+      this.editMode = true;
+      this.form.reset();
+      this.form.clear();
+      this.form.fill(customer);
+      $("#customerModalLong").modal("show");
+    },
+    update: function update() {
+      var _this4 = this;
+
+      this.$Progress.start();
+      this.form.busy = true;
+      this.form.put("/api/customers/" + this.form.id).then(function (response) {
+        _this4.getData();
+
+        $('#customerModalLong').modal('hide');
+
+        if (_this4.form.successful) {
+          _this4.$Progress.finish();
+
+          _this4.$snotify.success('Customer successfully Updated', 'Success');
+        } else {
+          _this4.$Progress.fail();
+
+          _this4.$snotify.success('Somthing is wrong in here', 'Error');
+        }
+      })["catch"](function (e) {
+        _this4.$Progress.fail();
 
         console.log(e);
       });
@@ -39244,7 +39279,22 @@ var render = function() {
             { staticClass: "modal-dialog", attrs: { role: "document" } },
             [
               _c("div", { staticClass: "modal-content" }, [
-                _vm._m(3),
+                _c("div", { staticClass: "modal-header" }, [
+                  _c(
+                    "h5",
+                    {
+                      staticClass: "modal-title",
+                      attrs: { id: "customerModalLongTitle" }
+                    },
+                    [
+                      _vm._v(
+                        _vm._s(_vm.editMode ? "Edit" : "Add New") + " Customer"
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(3)
+                ]),
                 _vm._v(" "),
                 _c(
                   "form",
@@ -39252,7 +39302,7 @@ var render = function() {
                     on: {
                       submit: function($event) {
                         $event.preventDefault()
-                        return _vm.store()
+                        _vm.editMode ? _vm.update() : _vm.store()
                       },
                       keydown: function($event) {
                         return _vm.form.onKeydown($event)
@@ -39560,26 +39610,18 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-header" }, [
-      _c(
-        "h5",
-        { staticClass: "modal-title", attrs: { id: "customerModalLongTitle" } },
-        [_vm._v("Add New Customer")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        {
-          staticClass: "close",
-          attrs: {
-            type: "button",
-            "data-dismiss": "modal",
-            "aria-label": "Close"
-          }
-        },
-        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-      )
-    ])
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
   }
 ]
 render._withStripped = true

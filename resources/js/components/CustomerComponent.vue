@@ -94,12 +94,12 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="customerModalLongTitle">Add New Customer</h5>
+                <h5 class="modal-title" id="customerModalLongTitle">{{editMode ? "Edit" : "Add New"}} Customer</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <form @submit.prevent="store()" @keydown="form.onKeydown($event)">
+              <form @submit.prevent="editMode ? update() : store()" @keydown="form.onKeydown($event)">
               <div class="modal-body">
                 <alert-error :form="form"></alert-error>
                   <div class="form-group">
@@ -152,12 +152,13 @@
     export default {
       data(){
         return {
+          editMode: false,
           query: '',
           queryField: 'name',
           customers: [],
           form: new Form({
             id: '',
-            namee: '',
+            name: '',
             email: '',
             phone: '',
             address: '',
@@ -218,6 +219,7 @@
                 });
           },
           create(){
+            this.editMode = false;
             this.form.reset()
             this.form.clear()
             $('#customerModalLong').modal('show')
@@ -234,6 +236,34 @@
                   if(this.form.successful){
                     this.$Progress.finish();
                     this.$snotify.success('Customer successfully saved', 'Success');
+                  }else{
+                    this.$Progress.fail();
+                    this.$snotify.success('Somthing is wrong in here', 'Error');
+                  }
+                })
+                .catch(e =>{
+                  this.$Progress.fail();
+                  console.log(e)
+                })
+          },
+          edit(customer){
+            console.log(customer)
+            this.editMode = true;
+            this.form.reset()
+            this.form.clear()
+            this.form.fill(customer);
+            $("#customerModalLong").modal("show");
+          },
+          update(){
+            this.$Progress.start();
+            this.form.busy = true;
+            this.form.put("/api/customers/" + this.form.id)
+                .then(response => {
+                  this.getData()
+                  $('#customerModalLong').modal('hide')
+                  if(this.form.successful){
+                    this.$Progress.finish();
+                    this.$snotify.success('Customer successfully Updated', 'Success');
                   }else{
                     this.$Progress.fail();
                     this.$snotify.success('Somthing is wrong in here', 'Error');
