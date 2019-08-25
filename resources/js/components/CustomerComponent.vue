@@ -6,7 +6,7 @@
                 <div class="card-header">
                   <h3 class="card-title">Customers Dashboard</h3>
                   <div class="card-tools"  style="position:absolute; right:1rem; top: .5rem">
-                    <button type="button" class="btn btn-primary" @click="create"><i class="fa fa-plus" data-toggle="modal" data-target="#customerModalLong"></i></button>
+                    <button type="button" class="btn btn-primary" @click="create"><i class="fa fa-plus"></i></button>
                   </div>
                 </div>
 
@@ -99,18 +99,44 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <form @submit.prevent="store" @keydown="form.onKeydown($event)">
+              <form @submit.prevent="store()" @keydown="form.onKeydown($event)">
               <div class="modal-body">
+                <alert-error :form="form"></alert-error>
                   <div class="form-group">
-                    <label>name</label>
+                    <label>Name</label>
                     <input v-model="form.name" type="text" name="name"
                       class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
                     <has-error :form="form" field="name"></has-error>
                   </div>
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input v-model="form.email" type="email" name="email"
+                      class="form-control" :class="{ 'is-invalid': form.errors.has('email') }">
+                    <has-error :form="form" field="email"></has-error>
+                  </div>
+                  <div class="form-group">
+                    <label>Phone</label>
+                    <input v-model="form.phone" type="tel" name="phone"
+                      class="form-control" :class="{ 'is-invalid': form.errors.has('phone') }">
+                    <has-error :form="phone" field="name"></has-error>
+                  </div>
+                  <div class="form-group">
+                    <label>Address</label>
+                    <textarea v-model="form.address" type="text" name="address"
+                      class="form-control" :class="{ 'is-invalid': form.errors.has('address') }">
+                    </textarea>
+                    <has-error :form="form" field="address"></has-error>
+                  </div>
+                  <div class="form-group">
+                    <label>Total</label>
+                    <input v-model="form.total" type="number" name="total"
+                      class="form-control" :class="{ 'is-invalid': form.errors.has('total') }">
+                    <has-error :form="form" field="total"></has-error>
+                  </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button :disabled="form.busy" type="submit" class="btn btn-primary">Save changes</button>
+                <button :disabled="form.busy" type="submit" class="btn btn-primary">Save</button>
               </div>
               </form>
             </div>
@@ -135,7 +161,7 @@
             email: '',
             phone: '',
             address: '',
-            total: '',
+            total: ''
           }), 
           pagination: {
             current_page: 1,
@@ -192,11 +218,31 @@
                 });
           },
           create(){
+            this.form.reset()
+            this.form.clear()
             $('#customerModalLong').modal('show')
             //console.log(create)
           },
           store(){
-            console.log('Hello')
+            //console.log('Hello')
+            this.$Progress.start();
+            this.form.busy = true;
+            this.form.post("/api/customers")
+                .then(response => {
+                  this.getData()
+                  $('#customerModalLong').modal('hide')
+                  if(this.form.successful){
+                    this.$Progress.finish();
+                    this.$snotify.success('Customer successfully saved', 'Success');
+                  }else{
+                    this.$Progress.fail();
+                    this.$snotify.success('Somthing is wrong in here', 'Error');
+                  }
+                })
+                .catch(e =>{
+                  this.$Progress.fail();
+                  console.log(e)
+                })
           }
         }
     }
