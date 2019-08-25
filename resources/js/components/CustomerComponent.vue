@@ -143,6 +143,42 @@
           </div>
         </div>
     <!-- End fields -->
+    <!-- Data show model-->
+    <!-- Modal -->
+        <div
+          class="modal fade"
+          id="showModal"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="showModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="showModalLabel">{{ form.name }}</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <strong>Email : {{ form.email }}</strong>
+                <br>
+                <strong>Phone : {{ form.phone }}</strong>
+                <br>
+                <strong>Total : {{ form.total }}</strong>
+                <br>
+                <strong>Address :</strong>
+                <address>{{ form.address }}</address>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    <!-- End -->
     <vue-progress-bar></vue-progress-bar>
     <vue-snotify></vue-snotify>
   </div>
@@ -246,6 +282,12 @@
                   console.log(e)
                 })
           },
+          show(customer) {
+              this.form.reset();
+              this.form.fill(customer);
+              $("#showModal").modal("show");
+              console.log(customer);
+            },
           edit(customer){
             console.log(customer)
             this.editMode = true;
@@ -273,9 +315,52 @@
                   this.$Progress.fail();
                   console.log(e)
                 })
+          },
+          destroy(customer){
+            this.$snotify.clear();
+              this.$snotify.confirm(
+                "You will not be able to recover this data!",
+                "Are you sure?",
+                {
+                  showProgressBar: false,
+                  closeOnClick: false,
+                  pauseOnHover: true,
+                  buttons: [
+                    {
+                      text: "Yes",
+                      action: toast => {
+                        this.$snotify.remove(toast.id);
+                        this.$Progress.start();
+                        axios
+                          .delete("/api/customers/" + customer.id)
+                          .then(response => {
+                            this.getData();
+                            this.$Progress.finish();
+                            this.$snotify.success(
+                              "Customer Successfully Deleted",
+                              "Success"
+                            );
+                          })
+                          .catch(e => {
+                            this.$Progress.fail();
+                            console.log(e);
+                          });
+                      },
+                      bold: true
+                    },
+                    {
+                      text: "No",
+                      action: toast => {
+                        this.$snotify.remove(toast.id);
+                      },
+                      bold: true
+                    }
+                  ]
+                }
+              );
+            }
           }
         }
-    }
 </script>
 <style>
   #addbut{
