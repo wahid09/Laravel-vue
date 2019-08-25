@@ -39514,7 +39514,7 @@ var render = function() {
                             }),
                             _vm._v(" "),
                             _c("has-error", {
-                              attrs: { form: _vm.phone, field: "name" }
+                              attrs: { form: _vm.form, field: "phone" }
                             })
                           ],
                           1

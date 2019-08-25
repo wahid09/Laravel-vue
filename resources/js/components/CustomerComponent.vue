@@ -118,7 +118,7 @@
                     <label>Phone</label>
                     <input v-model="form.phone" type="tel" name="phone"
                       class="form-control" :class="{ 'is-invalid': form.errors.has('phone') }">
-                    <has-error :form="phone" field="name"></has-error>
+                    <has-error :form="form" field="phone"></has-error>
                   </div>
                   <div class="form-group">
                     <label>Address</label>
