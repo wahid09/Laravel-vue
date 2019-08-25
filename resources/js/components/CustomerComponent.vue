@@ -5,8 +5,8 @@
             <div class="card">
                 <div class="card-header">
                   <h3 class="card-title">Customers Dashboard</h3>
-                  <div class="card-tools"  style="position:absulate; right:1rem; top: .5rem">
-                    <button type="button" class="btn btn-primary pull-right"><i class="fa fa-plus"></i></button>
+                  <div class="card-tools"  style="position:absolute; right:1rem; top: .5rem">
+                    <button type="button" class="btn btn-primary" @click="create"><i class="fa fa-plus" data-toggle="modal" data-target="#customerModalLong"></i></button>
                   </div>
                 </div>
 
@@ -88,7 +88,37 @@
             </div>
         </div>
     </div>
+    <!-- Fields Add start in here -->
+        <!-- Modal -->
+        <div class="modal fade" id="customerModalLong" tabindex="-1" role="dialog" aria-labelledby="customerModalLongTitle" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="customerModalLongTitle">Add New Customer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form @submit.prevent="store" @keydown="form.onKeydown($event)">
+              <div class="modal-body">
+                  <div class="form-group">
+                    <label>name</label>
+                    <input v-model="form.name" type="text" name="name"
+                      class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
+                    <has-error :form="form" field="name"></has-error>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button :disabled="form.busy" type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+              </form>
+            </div>
+          </div>
+        </div>
+    <!-- End fields -->
     <vue-progress-bar></vue-progress-bar>
+    <vue-snotify></vue-snotify>
   </div>
 </template>
 
@@ -99,6 +129,14 @@
           query: '',
           queryField: 'name',
           customers: [],
+          form: new Form({
+            id: '',
+            namee: '',
+            email: '',
+            phone: '',
+            address: '',
+            total: '',
+          }), 
           pagination: {
             current_page: 1,
           }
@@ -152,6 +190,13 @@
                   console.log(e);
                   this.$Progress.fail();
                 });
+          },
+          create(){
+            $('#customerModalLong').modal('show')
+            //console.log(create)
+          },
+          store(){
+            console.log('Hello')
           }
         }
     }
